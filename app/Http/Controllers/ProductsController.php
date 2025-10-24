@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\Category;
+use App\Models\Products;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class CategoryController extends Controller
+class ProductsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,29 +18,37 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         $data = [
-            'title' => 'inventoryApp | Categories',
+            'title' => 'inventoryApp | Products',
         ];
 
         if ($request->ajax()) {
-            $categories = Category::select('category_id', 'category_name')
-                ->orderBy('category_id');
+            $products = Products::with('category:category_id,category_name')
+                ->select('product_id', 'product_name', 'category_id', 'product_description')
+                ->orderBy('product_id');
 
-            return DataTables::of($categories)
+            return DataTables::of($products)
                 ->addIndexColumn()
-                ->addColumn('action', function ($category) {
-                    return '
-                            <button data-id="' . $category->category_id . '" class="btn btn-warning btn-sm" onclick="editCategory(this)">
-                                Edit
-                            </button>';
+                ->addColumn('category_name', function ($product) {
+                    return $product->category ? $product->category->category_name : '-';
                 })
-                ->addColumn('checkbox', function ($category) {
-                    return '<input type="checkbox" name="delete_selected[]" class="form-check-input delete-checkbox" value="' . $category->category_id . '">';
+                ->addColumn('action', function ($product) {
+                    return '
+                <button data-id="' . $product->product_id . '" class="btn btn-warning btn-sm" onclick="editProduct(this)">
+                    Edit
+                </button>
+                <a href="' . route('master-data.variants', $product->product_id) . '" class="btn btn-info btn-sm">
+                    Detail
+                </a>';
+                })
+                ->addColumn('checkbox', function ($product) {
+                    return '<input type="checkbox" name="delete_selected[]" class="form-check-input delete-checkbox" value="' . $product->product_id . '">';
                 })
                 ->rawColumns(['action', 'checkbox'])
                 ->make(true);
         }
 
-        return view('admin.categories', $data);
+
+        return view('admin.products', $data);
     }
 
     /**
@@ -47,7 +56,21 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        try {
+            $category = Category::select(['category_id', 'category_name'])->get();
+
+            return response()->json([
+                'status' => 200,
+                'category' => $category,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                "status" => 500,
+                "title" => "Internal Server Error",
+                "message" => $e->getMessage(),
+                "icon" => "error"
+            ], 500);
+        }
     }
 
     /**
@@ -56,17 +79,25 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'category_name' => 'required|string|max:255|unique:categories,category_name',
+            'product_name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,category_id',
+            'product_description' => 'required|string',
         ], [
-            'category_name.required' => 'Category name is required.',
-            'category_name.string' => 'Category name must be a string.',
-            'category_name.max' => 'Category name must not exceed 255 characters.',
-            'category_name.unique' => 'Category name already exists.',
+            'product_name.required' => 'Product name is required.',
+            'product_name.string' => 'Product name must be a string.',
+            'product_name.max' => 'Product name must not exceed 255 characters.',
+            'product_name.unique' => 'Product name already exists.',
+            'category_id.required' => 'Category is required.',
+            'category_id.exists' => 'Selected category does not exist.',
+            'product_description.required' => 'Product description is required.',
+            'product_description.string' => 'Product description must be a string.',
         ]);
 
         try {
-            Category::create([
-                'category_name' => $request->category_name,
+            Products::create([
+                'product_name' => $request->product_name,
+                'category_id' => $request->category_id,
+                'product_description' => $request->product_description,
             ]);
 
             return response()->json([
@@ -98,17 +129,18 @@ class CategoryController extends Controller
     public function show($id)
     {
         try {
-            $category = Category::findOrFail($id);
+            $products = Products::findOrFail($id);
+
             return response()->json([
                 'status' => 200,
-                'categories' => $category,
+                'products' => $products,
             ]);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 404,
                 'icon' => 'error',
                 'title' => 'Not Found',
-                'message' => 'Category not found.',
+                'message' => 'Product not found.',
             ], 404);
         } catch (Exception $e) {
             return response()->json([
@@ -123,7 +155,7 @@ class CategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Category $category)
+    public function edit(Products $products)
     {
         //
     }
@@ -133,46 +165,55 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'category_name' => 'required|string|max:255|unique:categories,category_name,' . $id . ',category_id',
-        ], [
-            'category_name.required' => 'Category name is required.',
-            'category_name.string' => 'Category name must be a string.',
-            'category_name.max' => 'Category name must not exceed 255 characters.',
-            'category_name.unique' => 'Category name already exists.',
-        ]);
+        $request->validate(
+            [
+                'product_name' => 'required|string|max:255',
+                'category_id' => 'required|exists:categories,category_id',
+                'product_description' => 'required|string',
+            ],
+            [
+                'product_name.required' => 'Product name is required.',
+                'product_name.string' => 'Product name must be a string.',
+                'product_name.max' => 'Product name must not exceed 255 characters.',
+                'product_name.unique' => 'Product name already exists.',
+                'category_id.required' => 'Category is required.',
+                'category_id.exists' => 'Selected category does not exist.',
+                'product_description.required' => 'Product description is required.',
+                'product_description.string' => 'Product description must be a string.',
+            ]
+        );
 
         try {
-            $category = Category::findOrFail($id);
+            $product = Products::findOrFail($id);
 
-            // Assign new values
-            $category->category_name = $request->category_name;
+            $product->product_name = $request->product_name;
+            $product->category_id = $request->category_id;
+            $product->product_description = $request->product_description;
 
-            // Check if any changes were made
-            if (!$category->isDirty()) {
+            if (!$product->isDirty()) {
                 return response()->json([
                     'status' => 200,
                     'icon' => 'info',
                     'title' => 'No Changes',
-                    'message' => 'No changes detected. Category data is already up to date.',
+                    'message' => 'No changes detected. Product data is already up to date.',
                 ]);
             }
 
             // Save the changes
-            $category->save();
+            $product->save();
 
             return response()->json([
                 'status' => 200,
                 'icon' => 'success',
                 'title' => 'Updated',
-                'message' => 'Category updated successfully!',
+                'message' => 'Product updated successfully!',
             ]);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 404,
                 'icon' => 'error',
                 'title' => 'Not Found',
-                'message' => 'Category not found.',
+                'message' => 'Product not found.',
             ], 404);
         } catch (QueryException $e) {
             return response()->json([
@@ -199,13 +240,13 @@ class CategoryController extends Controller
         $ids = $request->input('ids', []);
 
         try {
-            Category::whereIn('category_id', $ids)->delete();
+            Products::whereIn('product_id', $ids)->delete();
 
             return response()->json([
                 'status' => 200,
                 'icon' => 'success',
                 'title' => 'Deleted',
-                'message' => 'Selected categories deleted successfully!',
+                'message' => 'Selected products deleted successfully!',
             ]);
         } catch (QueryException $e) {
             return response()->json([

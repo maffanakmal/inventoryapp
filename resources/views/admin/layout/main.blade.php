@@ -12,6 +12,7 @@
     <link rel="icon" href="{{ asset('favicon.png') }}">
     <link href="{{ asset('css/dataTables.bootstrap5.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/select2.min.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     <link href="{{ asset('css/sweetalert2.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
 

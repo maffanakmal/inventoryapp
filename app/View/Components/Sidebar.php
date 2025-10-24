@@ -20,23 +20,28 @@ class Sidebar extends Component
                 'label' => 'Dashboard',
                 'route' => 'home',
                 'is_active' => request()->routeIs('home'),
-                'icon' => 'fa fa-home',
+                'icon' => 'fas fa-chart-line',
                 'is_dropdown' => false,
             ],
             [
                 'label' => 'Master Data',
                 'route' => '#',
                 'is_active' => request()->routeIs('master-data.*'),
-                'icon' => 'fa fa-database',
+                'icon' => 'fas fa-database',
                 'is_dropdown' => true,
                 'sub_links' => [
                     [
-                        'label' => 'Categories',
+                        'label' => 'Category',
                         'route' => 'master-data.categories',
-                        'is_active' => request()->routeIs('master-data.categories*'),
+                        'is_active' => request()->routeIs('master-data.categories.*'),
+                    ],
+                    [
+                        'label' => 'Product',
+                        'route' => 'master-data.products',
+                        'is_active' => request()->routeIs('master-data.products.*'),
                     ],
                 ],
-            ],
+            ],    
         ];
     }
 
