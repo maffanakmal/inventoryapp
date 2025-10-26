@@ -199,27 +199,40 @@ class CategoryController extends Controller
         $ids = $request->input('ids', []);
 
         try {
+            $usedCategories = Category::whereIn('category_id', $ids)
+                ->whereHas('products')
+                ->pluck('category_name');
+
+            if ($usedCategories->isNotEmpty()) {
+                return response()->json([
+                    'status'  => 400,
+                    'icon'    => 'warning',
+                    'title'   => 'Cannot Delete',
+                    'message' => 'Some categories are still used by products: ' . $usedCategories->join(', '),
+                ]);
+            }
+
             Category::whereIn('category_id', $ids)->delete();
 
             return response()->json([
-                'status' => 200,
-                'icon' => 'success',
-                'title' => 'Deleted',
+                'status'  => 200,
+                'icon'    => 'success',
+                'title'   => 'Deleted',
                 'message' => 'Selected categories deleted successfully!',
             ]);
         } catch (QueryException $e) {
             return response()->json([
-                'status' => 400,
-                'icon' => 'error',
-                'title' => 'Database Error',
-                'message' => $e->getMessage(),
+                'status'  => 400,
+                'icon'    => 'error',
+                'title'   => 'Database Error',
+                'message' => 'There was a problem deleting data from the database.',
             ], 400);
         } catch (Exception $e) {
             return response()->json([
-                'status' => 500,
-                'icon' => 'error',
-                'title' => 'Error',
-                'message' => $e->getMessage(),
+                'status'  => 500,
+                'icon'    => 'error',
+                'title'   => 'Server Error',
+                'message' => 'An unexpected error occurred.',
             ], 500);
         }
     }

@@ -40,6 +40,11 @@ class Sidebar extends Component
                         'route' => 'master-data.products',
                         'is_active' => request()->routeIs('master-data.products.*'),
                     ],
+                    [
+                        'label' => 'Product Stock',
+                        'route' => 'master-data.stocks',
+                        'is_active' => request()->routeIs('master-data.stocks.*'),
+                    ],
                 ],
             ],    
         ];

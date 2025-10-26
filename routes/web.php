@@ -4,8 +4,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\HistoryStockController;
 use App\Http\Controllers\ProductsController;
+use App\Http\Controllers\ProductStockController;
 use App\Http\Controllers\VariantsController;
+use App\Models\HistoryStock;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,5 +53,11 @@ Route::prefix('master-data')->name('master-data.')->group(function () {
     Route::post('/variant', [VariantsController::class, 'store'])->name('variants.store');
     Route::put('/variant/{id}', [VariantsController::class, 'update'])->name('variants.update');
     Route::delete('/variant/{id}', [VariantsController::class, 'destroy'])->name('variants.delete');
-
+    
+    // Product Stock
+    Route::get('/stock', [ProductStockController::class, 'index'])->name('stocks');
+    Route::get('/stock/create', [ProductStockController::class, 'create'])->name('stocks.create');
+    
+    // Stock History
+    Route::get('/stock-history/{id}', [HistoryStockController::class, 'index'])->name('stocks.history');
 });

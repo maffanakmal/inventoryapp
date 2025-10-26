@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Models\Category;
 use App\Models\Products;
+use App\Models\TransactionItems;
+use App\Models\Variants;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
 use Yajra\DataTables\Facades\DataTables;
@@ -240,6 +242,18 @@ class ProductsController extends Controller
         $ids = $request->input('ids', []);
 
         try {
+            $hasRelations = Variants::whereIn('product_id', $ids)->exists() ||
+                TransactionItems::whereIn('product_id', $ids)->exists();
+
+            if ($hasRelations) {
+                return response()->json([
+                    'status' => 400,
+                    'icon' => 'warning',
+                    'title' => 'Cannot Delete',
+                    'message' => 'One or more selected products have related variants or transaction items and cannot be deleted.',
+                ]);
+            }
+
             Products::whereIn('product_id', $ids)->delete();
 
             return response()->json([

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('sku')->unique();
             $table->string('variant_name');
             $table->string('variant_image')->nullable();
-            $table->decimal('variant_price', 10, 2);
+            $table->decimal('variant_price', 15, 2);
             $table->integer('stock_quantity');
             $table->timestamps();
         });

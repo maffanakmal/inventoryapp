@@ -28,4 +28,8 @@ class Products extends Model
     {
         return $this->hasMany(Variants::class, 'product_id', 'product_id');
     }
+
+    public function transactionItems() {
+        return $this->hasMany(transactionItems::class, 'product_id', 'product_id');
+    }
 }

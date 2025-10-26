@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('product_name');
             $table->foreignId('category_id')
                 ->constrained('categories', 'category_id')
-                ->cascadeOnDelete()
+                ->restrictOnDelete()
                 ->cascadeOnUpdate();
             $table->text('product_description');
             $table->timestamps();

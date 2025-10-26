@@ -6,7 +6,9 @@ use Exception;
 use App\Models\Products;
 use App\Models\Variants;
 use Illuminate\Support\Str;
+use App\Models\HistoryStock;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -82,7 +84,10 @@ class VariantsController extends Controller
                 $imagePath = $path;
             }
 
-            $sku = strtoupper(Str::slug($request->variant_name, '-')) . '-' . Str::upper(Str::random(5));
+            $variantPrefix = strtoupper(substr($request->variant_name, 0, 3));
+            $randomNumber = rand(100000, 999999);
+
+            $sku = "{$variantPrefix}-{$randomNumber}";
 
             Variants::create([
                 'product_id'     => $request->product_id,
@@ -156,6 +161,7 @@ class VariantsController extends Controller
     /**
      * Update the specified resource in storage.
      */
+
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -173,8 +179,7 @@ class VariantsController extends Controller
 
         try {
             $variant = Variants::findOrFail($id);
-
-            $original = $variant->getOriginal();
+            $oldStock = $variant->stock_quantity;
 
             if ($request->hasFile('variant_image')) {
                 if ($variant->variant_image && Storage::exists('public/' . $variant->variant_image)) {
@@ -192,14 +197,30 @@ class VariantsController extends Controller
 
             if (!$request->hasFile('variant_image') && !$variant->isDirty()) {
                 return response()->json([
-                    'status' => 200,
-                    'icon' => 'info',
-                    'title' => 'No Changes',
+                    'status'  => 200,
+                    'icon'    => 'info',
+                    'title'   => 'No Changes',
                     'message' => 'No changes detected. Product data is already up to date.',
                 ]);
             }
 
             $variant->save();
+
+            if ($oldStock != $variant->stock_quantity) {
+                $difference = $variant->stock_quantity - $oldStock;
+                $inputQty = $difference > 0 ? $difference : 0;
+                $outputQty = $difference < 0 ? abs($difference) : 0;
+
+                HistoryStock::create([
+                    'transaction_id'   => null,
+                    'variant_id'       => $variant->variant_id,
+                    'transaction_type' => 'adjustment',
+                    'input_quantity'   => $inputQty,
+                    'output_quantity'  => $outputQty,
+                    'balance_quantity' => $variant->stock_quantity,
+                    'officer'          => Auth::user()->name ?? 'Administrator',
+                ]);
+            }
 
             return response()->json([
                 'status'  => 200,
@@ -232,6 +253,15 @@ class VariantsController extends Controller
         try {
             $variant = Variants::findOrFail($id);
 
+            if ($variant->historyStocks()->exists() || $variant->transactionItems()->exists()) {
+                return response()->json([
+                    'status'  => 400,
+                    'icon'    => 'warning',
+                    'title'   => 'Cannot Delete',
+                    'message' => 'This variant has stock history and cannot be deleted.',
+                ]);
+            }
+
             if ($variant->variant_image && Storage::exists('public/' . $variant->variant_image)) {
                 Storage::delete('public/' . $variant->variant_image);
             }
@@ -244,13 +274,6 @@ class VariantsController extends Controller
                 'title'   => 'Deleted',
                 'message' => 'Variant deleted successfully!',
             ]);
-        } catch (QueryException $e) {
-            return response()->json([
-                'status'  => 400,
-                'icon'    => 'error',
-                'title'   => 'Database Error',
-                'message' => $e->getMessage(),
-            ], 400);
         } catch (Exception $e) {
             return response()->json([
                 'status'  => 500,
@@ -260,4 +283,5 @@ class VariantsController extends Controller
             ], 500);
         }
     }
+
 }
