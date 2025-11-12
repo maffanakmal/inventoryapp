@@ -46,7 +46,27 @@ class Sidebar extends Component
                         'is_active' => request()->routeIs('master-data.stocks.*'),
                     ],
                 ],
-            ],    
+            ],
+            [
+                'label' => 'Transactions',
+                'route' => '#',
+                'is_active' => request()->routeIs('transactions.*'),
+                'icon' => 'fas fa-exchange-alt',
+                'is_dropdown' => true,
+                'sub_links' => [
+                    [
+                        'label' => 'Input Transaction',
+                        'route' => 'transactions.create',
+                        'is_active' => request()->routeIs('transactions.create'),
+                    ],
+                    [
+                        'label' => 'Transaction History',
+                        'route' => 'transactions.history',
+                        'is_active' => request()->routeIs('transactions.history'),
+                    ],
+                ],
+            ],
+
         ];
     }
 

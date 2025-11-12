@@ -36,4 +36,9 @@ class Variants extends Model
     {
         return $this->hasMany(TransactionItems::class, 'variant_id', 'variant_id');
     }
+
+    public function increasedPrices()
+    {
+        return $this->hasMany(IncreasedPrices::class, 'variant_id', 'variant_id');
+    }
 }

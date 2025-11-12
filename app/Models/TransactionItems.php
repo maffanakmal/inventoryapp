@@ -14,9 +14,15 @@ class TransactionItems extends Model
     protected $fillable = [
         'transaction_id',
         'variant_id',
+        'product_id',
+        'product_name_snapshot',
+        'variant_name_snapshot',
+        'sku_snapshot',
+        'unit_price_snapshot',
+        'batch_number',
         'quantity',
-        'unit_price',
-        'total_price',
+        'price',
+        'total',
     ];
 
     public function transaction()
@@ -32,5 +38,10 @@ class TransactionItems extends Model
     public function variant()
     {
         return $this->belongsTo(Variants::class, 'variant_id', 'variant_id');
+    }
+
+    public function increasedPrices()
+    {
+        return $this->hasMany(IncreasedPrices::class, 'transaction_items_id', 'transaction_items_id');
     }
 }

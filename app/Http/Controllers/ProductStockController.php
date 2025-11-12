@@ -57,7 +57,7 @@ class ProductStockController extends Controller
                 })
                 ->addColumn('action', function ($variant) {
                     return '<a href="' . route('master-data.stocks.history', $variant->variant_id) . '" class="btn btn-info btn-sm">
-                            Detail
+                            <i class="fa-solid fa-eye me-1"></i> Detail
                             </a>';
                 })
                 ->rawColumns(['action'])

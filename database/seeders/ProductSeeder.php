@@ -20,7 +20,7 @@ class ProductSeeder extends Seeder
         $categoryIds = Category::pluck('category_id')->toArray();
 
         if (empty($categoryIds)) {
-            $this->command->warn('⚠️ Tidak ada kategori di database. Jalankan CategorySeeder dulu.');
+            $this->command->warn('Tidak ada kategori di database. Jalankan CategorySeeder dulu.');
             return;
         }
 

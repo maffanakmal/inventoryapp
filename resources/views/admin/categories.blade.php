@@ -11,7 +11,7 @@
                     <i class="fa-solid fa-plus me-1"></i> Add Category
                 </button>
                 <button onclick="categorySelectedDelete()" class="btn btn-sm btn-danger">
-                    <i class="fa-solid fa-plus me-1"></i> Delete Selected
+                    <i class="fa-solid fa-trash me-1"></i> Delete Selected
                 </button>
             </div>
         </div>
@@ -55,8 +55,12 @@
                         </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" id="saveBtn" class="btn btn-primary btn-sm">Simpan</button>
+                    <button type="button" class="btn btn-secondary btn-sm me-2" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-xmark me-1"></i> Cancel
+                    </button>
+                    <button type="submit" id="saveBtn" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-database me-1"></i> Save
+                    </button>
                 </div>
                 </form>
             </div>
@@ -154,7 +158,7 @@
                 contentType: false,
                 processData: false,
                 success: function(response) {
-                    btn.prop('disabled', false).html(method === 'update' ? 'Edit' : 'Save');
+                    btn.prop('disabled', false).html(method === 'update' ? '<i class="fa-solid fa-database me-1"></i> Edit' : '<i class="fa-solid fa-database me-1"></i> Save');
 
                     if (response.status == 200) {
                         $('#categoryModal').modal('hide');
@@ -172,7 +176,7 @@
                     }
                 },
                 error: function(xhr) {
-                    btn.prop('disabled', false).html(method === 'update' ? 'Edit' : 'Save');
+                    btn.prop('disabled', false).html(method === 'update' ? '<i class="fa-solid fa-database me-1"></i> Edit' : '<i class="fa-solid fa-database me-1"></i> Save');
 
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;
@@ -232,12 +236,12 @@
                 url: "{{ route('master-data.categories.show', '') }}/" + category_id,
                 type: "GET",
                 success: function(response) {
-                    btn.prop('disabled', false).html(method === 'update' ? 'Edit' : 'Save');
+                    btn.prop('disabled', false).html(method === 'update' ? '<i class="fa-solid fa-database me-1"></i> Edit' : '<i class="fa-solid fa-database me-1"></i> Save');
 
                     $('#category_name').val(response.categories.category_name);
                 },
                 error: function(xhr) {
-                    btn.prop('disabled', false).html(method === 'update' ? 'Edit' : 'Save');
+                    btn.prop('disabled', false).html(method === 'update' ? '<i class="fa-solid fa-database me-1"></i> Edit' : '<i class="fa-solid fa-database me-1"></i> Save');
 
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;

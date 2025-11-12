@@ -7,6 +7,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HistoryStockController;
 use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\ProductStockController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\VariantsController;
 use App\Models\HistoryStock;
 
@@ -60,4 +61,16 @@ Route::prefix('master-data')->name('master-data.')->group(function () {
     
     // Stock History
     Route::get('/stock-history/{id}', [HistoryStockController::class, 'index'])->name('stocks.history');
+
+    // Transactions
+});
+
+Route::prefix('transactions')->name('transactions.')->group(function () {
+    Route::get('/history', [TransactionController::class, 'index'])->name('history');
+    Route::get('/', [TransactionController::class, 'create'])->name('create');
+    Route::get('/supplier', [TransactionController::class, 'supplier'])->name('supplier');
+    Route::get('/detail/{id}', [TransactionController::class, 'detail'])->name('detail');
+    Route::post('/', [TransactionController::class, 'store'])->name('store');
+    Route::post('/export-excel', [TransactionController::class, 'exportExcel'])->name('exportExcel');
+    Route::get('/export-pdf/{id}', [TransactionController::class, 'exportPdf'])->name('exportPdf');
 });

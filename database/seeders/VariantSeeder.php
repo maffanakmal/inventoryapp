@@ -17,31 +17,28 @@ class VariantSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
-        $products = Products::all();
+        $productIds = Products::pluck('product_id')->toArray();
 
-        if ($products->isEmpty()) {
-            $this->command->warn('⚠️ Tidak ada produk di database. Jalankan ProductSeeder dulu.');
+        if (empty($productIds)) {
+            $this->command->warn('Tidak ada produk di database. Jalankan ProductSeeder dulu.');
             return;
         }
 
-        foreach ($products as $product) {
-
-            $variantCount = rand(1, 6);
+        foreach ($productIds as $productId) {
+            
+            $variantCount = rand(2, 6);
 
             for ($i = 0; $i < $variantCount; $i++) {
-                $variantName = $faker->randomElement([
-                    'Warna Merah', 'Warna Hitam', 'Warna Biru',
-                    'Ukuran S', 'Ukuran M', 'Ukuran L', 'Ukuran XL',
-                    'Model A', 'Model B', 'Model C'
-                ]);
-
                 Variants::create([
-                    'product_id' => $product->product_id,
-                    'sku' => strtoupper($faker->bothify('SKU-###??')),
-                    'variant_name' => $variantName,
-                    'variant_image' => $faker->imageUrl(400, 400, 'product', true, $variantName),
-                    'variant_price' => $faker->randomFloat(2, 10000, 500000),
-                    'stock_quantity' => $faker->numberBetween(5, 100),
+                    'product_id' => $productId,
+                    'sku' => strtoupper('SKU-' . uniqid()),
+                    'variant_name' => $faker->randomElement([
+                        'Small', 'Medium', 'Large', 'Extra Large',
+                        'Red', 'Blue', 'Green', 'Black', 'White',
+                    ]),
+                    'variant_image' => null,
+                    'variant_price' => $faker->numberBetween(10000, 200000),
+                    'stock_quantity' => $faker->numberBetween(10, 100),
                 ]);
             }
         }

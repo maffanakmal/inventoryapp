@@ -19,6 +19,7 @@ class HistoryStock extends Model
         'output_quantity',
         'balance_quantity',
         'officer',
+        'notes',
     ];
 
     public function transaction()

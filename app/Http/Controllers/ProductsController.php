@@ -36,10 +36,10 @@ class ProductsController extends Controller
                 ->addColumn('action', function ($product) {
                     return '
                 <button data-id="' . $product->product_id . '" class="btn btn-warning btn-sm" onclick="editProduct(this)">
-                    Edit
+                    <i class="fa-solid fa-pen me-1"></i> Edit
                 </button>
                 <a href="' . route('master-data.variants', $product->product_id) . '" class="btn btn-info btn-sm">
-                    Detail
+                    <i class="fa-solid fa-eye me-1"></i> Detail
                 </a>';
                 })
                 ->addColumn('checkbox', function ($product) {
@@ -242,15 +242,21 @@ class ProductsController extends Controller
         $ids = $request->input('ids', []);
 
         try {
-            $hasRelations = Variants::whereIn('product_id', $ids)->exists() ||
-                TransactionItems::whereIn('product_id', $ids)->exists();
+            $relatedVariantIds = Variants::whereIn('product_id', $ids)->pluck('product_id')->toArray();
+            $relatedTransactionIds = TransactionItems::whereIn('product_id', $ids)->pluck('product_id')->toArray();
 
-            if ($hasRelations) {
+            $relatedIds = array_unique(array_merge($relatedVariantIds, $relatedTransactionIds));
+
+            if (!empty($relatedIds)) {
+                $relatedProductNames = Products::whereIn('product_id', $relatedIds)
+                    ->pluck('product_name')
+                    ->toArray();
+
                 return response()->json([
                     'status' => 400,
                     'icon' => 'warning',
                     'title' => 'Cannot Delete',
-                    'message' => 'One or more selected products have related variants or transaction items and cannot be deleted.',
+                    'message' => 'Some products (' . implode(', ', $relatedProductNames) . ') have related variants or transaction items and cannot be deleted.',
                 ]);
             }
 

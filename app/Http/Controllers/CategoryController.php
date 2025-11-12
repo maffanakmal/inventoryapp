@@ -29,7 +29,7 @@ class CategoryController extends Controller
                 ->addColumn('action', function ($category) {
                     return '
                             <button data-id="' . $category->category_id . '" class="btn btn-warning btn-sm" onclick="editCategory(this)">
-                                Edit
+                                <i class="fa-solid fa-pen me-1"></i> Edit 
                             </button>';
                 })
                 ->addColumn('checkbox', function ($category) {

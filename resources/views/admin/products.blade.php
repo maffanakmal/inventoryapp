@@ -11,7 +11,7 @@
                     <i class="fa-solid fa-plus me-1"></i> Add Product
                 </button>
                 <button onclick="productSelectedDelete()" class="btn btn-sm btn-danger">
-                    <i class="fa-solid fa-plus me-1"></i> Delete Selected
+                    <i class="fa-solid fa-trash me-1"></i> Delete Selected
                 </button>
             </div>
         </div>
@@ -23,7 +23,7 @@
                             <th style="width: 50px;">No</th>
                             <th>Product Name</th>
                             <th>Category</th>
-                            <th style="width:150px">Action</th>
+                            <th style="width:200px">Action</th>
                             <th style="width:40px">
                                 <input type="checkbox" id="checkAll" class="form-check-input" />
                             </th>
@@ -68,8 +68,8 @@
                         </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="saveBtn" class="btn btn-primary btn-sm">Save</button>
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal"><i class="fa-solid fa-xmark me-1"></i> Cancel</button>
+                    <button type="submit" id="saveBtn" class="btn btn-primary btn-sm"> <i class="fa-solid fa-database me-1"></i> Save</button>
                 </div>
                 </form>
             </div>
@@ -227,7 +227,7 @@
                 contentType: false,
                 processData: false,
                 success: function(response) {
-                    btn.prop('disabled', false).html(method === 'update' ? 'Edit' : 'Save');
+                    btn.prop('disabled', false).html(method === 'update' ? '<i class="fa-solid fa-database me-1"></i> Edit' : '<i class="fa-solid fa-database me-1"></i> Save');
 
                     if (response.status == 200) {
                         $('#productModal').modal('hide');
@@ -245,7 +245,7 @@
                     }
                 },
                 error: function(xhr) {
-                    btn.prop('disabled', false).html(method === 'update' ? 'Edit' : 'Save');
+                    btn.prop('disabled', false).html(method === 'update' ? '<i class="fa-solid fa-database me-1"></i> Edit' : '<i class="fa-solid fa-database me-1"></i> Save');
 
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;
@@ -305,14 +305,14 @@
                 url: "{{ route('master-data.products.show', '') }}/" + product_id,
                 type: "GET",
                 success: function(response) {
-                    btn.prop('disabled', false).html(method === 'update' ? 'Edit' : 'Save');
+                    btn.prop('disabled', false).html(method === 'update' ? '<i class="fa-solid fa-database me-1"></i> Edit' : '<i class="fa-solid fa-database me-1"></i> Save');
 
                     $('#product_name').val(response.products.product_name);
                     $('#category_id').val(response.products.category_id);
                     $('#product_description').val(response.products.product_description);
                 },
                 error: function(xhr) {
-                    btn.prop('disabled', false).html(method === 'update' ? 'Edit' : 'Save');
+                    btn.prop('disabled', false).html(method === 'update' ? '<i class="fa-solid fa-database me-1"></i> Edit' : '<i class="fa-solid fa-database me-1"></i> Save');
 
                     if (xhr.status === 422) {
                         let errors = xhr.responseJSON.errors;
